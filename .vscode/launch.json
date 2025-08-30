@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FieldNotes - Api",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet: build",
+            "program": "${workspaceFolder}/src/FieldNotes.Api/bin/Debug/net8.0/FieldNotes.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/FieldNotes.Api",
+            "console": "integratedTerminal",
+            "stopAtEntry": false,
+            "env": {
+                "DOTNET_ENVIRONMENT": "Development"
+            }
+        }
+    ]
+}
