@@ -1,6 +1,7 @@
 using System.Text;
 using FieldNotes.Api.Data.Persistence;
 using FieldNotes.Api.Data.Services;
+using FieldNotes.Api.Extensions;
 using FieldNotes.Api.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -41,5 +42,7 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();
+
+app.ApplyMigrations();
 
 app.Run();
