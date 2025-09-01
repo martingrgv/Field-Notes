@@ -1,4 +1,4 @@
-using FieldNotes.Api.Data.Persistence.Models;
+using FieldNotes.Api.Users.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FieldNotes.Api.Users;
@@ -7,20 +7,52 @@ namespace FieldNotes.Api.Users;
 [Route("api/v1/users")]
 public class UserController(IUserService userService) : ControllerBase
 {
+    private const int UsernameMinLength = 3;
+    private const int UsernameMaxLength = 20;
+    private const int EmailMinLength = 3;
+    private const int EmailMaxLength = 255;
+    private const int PasswordMinLength = 6;
+    private const int PasswordMaxLength = 20;
+
     [HttpPost]
     [Route("register")]
-    public IActionResult Register([FromBody] UserCredentialViewModel userViewModel)
+    public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
     {
-        var user = userService.Register(userViewModel);
-        return CreatedAtAction(nameof(Register), new { id = user.Id });
+        ValidateCredentailRequest(request);
+
+        var userId = await userService.RegisterAsync(request);
+        return CreatedAtAction(nameof(Register), new { id = userId });
     }
 
     [HttpPost]
     [Route("login")]
-    public IActionResult Login([FromBody] UserCredentialViewModel userViewModel) //TODO: Change to user view model
+    public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
     {
-        var user = userService.GetUserByUsername(userViewModel.Username!);
-        string token = userService.Login(user);
+        ValidateCredentailRequest(request);
+
+        string token = await userService.LoginAsync(request);
         return Ok(token);
+    }
+
+    private static void ValidateCredentailRequest(UserCredentialRequest request)
+    {
+        if (request is UserRegisterRequest registerRequest)
+        {
+            if (string.IsNullOrEmpty(registerRequest.Email) ||
+                registerRequest.Email.Length < EmailMinLength ||
+                registerRequest.Email.Length > EmailMaxLength)
+                throw new ArgumentException($"Email must be valid!");
+        }
+
+        if (string.IsNullOrEmpty(request.Username) ||
+            request.Username.Length < UsernameMinLength ||
+            request.Username.Length > UsernameMaxLength)
+            throw new ArgumentException($"Username must be between {UsernameMinLength} and {UsernameMaxLength} characters long!");
+
+
+        if (string.IsNullOrEmpty(request.Password) ||
+            request.Password.Length < PasswordMinLength ||
+            request.Password.Length > PasswordMaxLength)
+            throw new ArgumentException($"Password must be between {PasswordMinLength} and {PasswordMaxLength} characters long!");
     }
 }

@@ -1,0 +1,16 @@
+services:
+  fieldnotesdb:
+    image: postgres
+    container_name: fieldnotesdb
+    environment:
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=postgres"
+      - "POSTGRES_DB=FieldNotesDb"
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - "postgres_fieldnotes:/var/lib/postgresql/data/"
+
+volumes:
+  postgres_fieldnotes:

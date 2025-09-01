@@ -1,37 +1,60 @@
+using FieldNotes.Api.Data.Persistence;
 using FieldNotes.Api.Data.Persistence.Models;
 using FieldNotes.Api.Data.Services;
+using FieldNotes.Api.Users.Requests;
+using Microsoft.EntityFrameworkCore;
 
 namespace FieldNotes.Api.Users;
 
-public class UserService(PasswordHasher passwordHasher, TokenProvider tokenProvider) : IUserService
+public class UserService(FieldNotesDbContext dbContext, IPasswordHasher passwordHasher, TokenProvider tokenProvider) : IUserService
 {
-    public User GetUserByUsername(string username)
+    public async Task<User?> GetUserByUsernameAsync(string username)
     {
-        return new User
-        {
-            Id = Guid.NewGuid(),
-            Email = "example@mail.com",
-            Username = "guest",
-            Password = "guest12345"
-        };
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
     }
 
-    public string Login(User user)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
-        string token = tokenProvider.CreateToken(user);
-        return token;
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    public User Register(UserCredentialViewModel userViewModel)
+    public async Task<string> LoginAsync(UserLoginRequest request)
     {
-        string hashedPassword = passwordHasher.GenerateHash(userViewModel.Password);
+        var user = await GetUserByUsernameAsync(request.Username);
 
-        return new User
+        if (user is not null)
+        {
+            string token = tokenProvider.CreateToken(user);
+            return token;
+        }
+
+        throw new InvalidOperationException("User not found!");
+    }
+
+    public async Task<Guid> RegisterAsync(UserRegisterRequest request)
+    {
+        if (await GetUserByUsernameAsync(request.Username) is not null)
+        {
+            throw new InvalidOperationException("Username already exists");
+        }
+        if (await GetUserByEmailAsync(request.Email) is not null)
+        {
+            throw new InvalidOperationException("User already exists");
+        }
+
+        string hashedPassword = passwordHasher.GenerateHash(request.Password);
+
+        var user = new User
         {
             Id = Guid.NewGuid(),
-            Username = userViewModel.Username,
-            Email = userViewModel.Email,
+            Username = request.Username,
+            Email = request.Email,
             Password = hashedPassword
         };
+
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+
+        return user.Id;
     }
 }

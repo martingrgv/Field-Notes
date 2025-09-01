@@ -1,14 +1,21 @@
 using System.Text;
+using FieldNotes.Api.Data.Persistence;
 using FieldNotes.Api.Data.Services;
 using FieldNotes.Api.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<PasswordHasher>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<TokenProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddDbContext<FieldNotesDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -34,9 +41,5 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();
-
-
-app.MapGet("/test", () => Results.Ok("Success"))
-.RequireAuthorization();
 
 app.Run();

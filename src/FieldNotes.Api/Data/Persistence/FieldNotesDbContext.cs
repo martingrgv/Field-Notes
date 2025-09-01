@@ -1,6 +1,9 @@
+using FieldNotes.Api.Data.Persistence.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace FieldNotes.Api.Data.Persistence;
 
-public class FieldNotesDbContext
+public class FieldNotesDbContext(DbContextOptions options) : DbContext(options)
 {
-
+    public DbSet<User> Users { get; set; }
 }

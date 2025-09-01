@@ -1,14 +1,36 @@
+using System.Security.Cryptography;
+
 namespace FieldNotes.Api.Data.Services;
 
-public class PasswordHasher
+public class PasswordHasher : IPasswordHasher
 {
+    private const int SaltSize = 3;
+    private const int HashSize = 32;
+    private const int Iterations = 100_000;
+
+    private static readonly HashAlgorithmName Algorithm = HashAlgorithmName.SHA512;
+
     public string GenerateHash(string password)
     {
-        return "12345";
+        ArgumentException.ThrowIfNullOrEmpty(password);
+
+        byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
+        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, HashSize);
+
+        return $"{Convert.ToHexString(hash)}-{Convert.ToHexString(salt)}";
     }
 
-    public void Verify(string password, string passwordHash)
+    public bool Verify(string password, string passwordHash)
     {
+        ArgumentException.ThrowIfNullOrEmpty(password);
+        ArgumentException.ThrowIfNullOrEmpty(passwordHash);
 
+        string[] parts = passwordHash.Split('-');
+        byte[] hash = Convert.FromHexString(parts[0]);
+        byte[] salt = Convert.FromHexString(parts[1]);
+
+        byte[] inputHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, Iterations, Algorithm, HashSize);
+
+        return CryptographicOperations.FixedTimeEquals(hash, inputHash);
     }
 }
