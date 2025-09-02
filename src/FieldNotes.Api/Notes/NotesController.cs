@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using FieldNotes.Api.Common;
 using FieldNotes.Api.Notes.Requests;
-using FieldNotes.Api.Notes.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,27 +14,6 @@ public class NotesController(INoteService noteService) : ApiControllerBase
     {
         var pagedResult = await noteService.GetAllAsync(request);
         return Ok(pagedResult);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Details([FromRoute] Guid id)
-    {
-        if (id == Guid.Empty)
-        {
-            return BadRequest("Invalid id!");
-        }
-
-        var note = await noteService.GetByIdAsync(id);
-        var response = new NoteDetailsResponse
-        {
-            Title = note.Title,
-            Category = note.Category,
-            Description = note.Description,
-            LastUpdated = note.LastUpdated,
-            LastUpdatedBy = note.LastUpdatedBy
-        };
-
-        return Ok(response);
     }
 
     [HttpPost]

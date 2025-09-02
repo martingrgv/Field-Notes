@@ -88,16 +88,4 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
             PageNumber = request.PageNumber
         };
     }
-
-    public async Task<Note> GetByIdAsync(Guid noteId)
-    {
-        var note = await dbContext.Notes.FindAsync(noteId);
-
-        if (note is not null)
-        {
-            return note;
-        }
-
-        throw new InvalidOperationException("Note is not found!");
-    }
 }
