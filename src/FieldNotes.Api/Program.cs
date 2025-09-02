@@ -2,6 +2,7 @@ using System.Text;
 using FieldNotes.Api.Data.Persistence;
 using FieldNotes.Api.Data.Services;
 using FieldNotes.Api.Extensions;
+using FieldNotes.Api.Notes;
 using FieldNotes.Api.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<TokenProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INoteService, NoteService>();
 
 builder.Services.AddDbContext<FieldNotesDbContext>(options =>
 {
@@ -28,12 +30,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         o.RequireHttpsMetadata = false;
         o.TokenValidationParameters = new TokenValidationParameters
         {
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ClockSkew = TimeSpan.Zero
         };
     });
+
 
 var app = builder.Build();
 
@@ -41,7 +44,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
+
 app.MapControllers();
+app.MapControllerRoute(
+        name: "default",
+        pattern: "api{controller=Home}");
 
 app.ApplyMigrations();
 

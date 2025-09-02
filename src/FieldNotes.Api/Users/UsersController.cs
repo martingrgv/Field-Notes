@@ -1,11 +1,10 @@
+using FieldNotes.Api.Common;
 using FieldNotes.Api.Users.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FieldNotes.Api.Users;
 
-[ApiController]
-[Route("api/v1/users")]
-public class UserController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService) : ApiControllerBase
 {
     private const int UsernameMinLength = 3;
     private const int UsernameMaxLength = 20;
