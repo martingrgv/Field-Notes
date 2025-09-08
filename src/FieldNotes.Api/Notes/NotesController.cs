@@ -16,6 +16,13 @@ public class NotesController(INoteService noteService) : ApiControllerBase
         return Ok(pagedResult);
     }
 
+    [HttpGet]
+    [Route("categories")]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        return Ok(await noteService.GetCategoriesAsync());
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateNoteRequest request)
     {

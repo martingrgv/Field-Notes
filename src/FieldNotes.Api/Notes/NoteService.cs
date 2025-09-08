@@ -88,4 +88,15 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
             PageNumber = request.PageNumber
         };
     }
+
+    public async Task<string[]> GetCategoriesAsync()
+    {
+        string[] categories = await dbContext.Notes
+            .AsNoTracking()
+            .Where(n => !string.IsNullOrEmpty(n.Category))
+            .Select(n => n.Category!)
+            .ToArrayAsync();
+
+        return categories;
+    }
 }

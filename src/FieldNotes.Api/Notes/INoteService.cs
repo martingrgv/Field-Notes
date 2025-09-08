@@ -7,6 +7,7 @@ namespace FieldNotes.Api.Notes;
 public interface INoteService
 {
     Task<PagedResult<Note>> GetAllAsync(NotesQueryRequest request);
+    Task<string[]> GetCategoriesAsync();
     Task<Note> CreateAsync(CreateNoteRequest request, Guid userId, string username);
     Task<Note> UpdateAsync(UpdateNoteRequest request, string username);
     Task DeleteAsync(Guid noteId);
