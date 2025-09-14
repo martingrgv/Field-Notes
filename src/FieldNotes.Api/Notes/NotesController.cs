@@ -1,6 +1,7 @@
-using System.Security.Claims;
 using FieldNotes.Api.Common;
+using FieldNotes.Api.Extensions;
 using FieldNotes.Api.Notes.Requests;
+using FieldNotes.Api.Notes.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,15 +13,23 @@ public class NotesController(INoteService noteService) : ApiControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllNotes([FromQuery] NotesQueryRequest request)
     {
-        var pagedResult = await noteService.GetAllAsync(request);
+        var pagedResult = await noteService.GetAllAsync(request, User.Id()!);
         return Ok(pagedResult);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetNoteById([FromRoute] string id)
+    {
+        var noteDetailsResponse = await noteService.GetByIdAsync(id);
+        return Ok(noteDetailsResponse);
     }
 
     [HttpGet]
     [Route("categories")]
     public async Task<IActionResult> GetAllCategories()
     {
-        return Ok(await noteService.GetCategoriesAsync());
+        return Ok(await noteService.GetCategoriesAsync(User.Id()!));
     }
 
     [HttpPost]
@@ -31,9 +40,8 @@ public class NotesController(INoteService noteService) : ApiControllerBase
             return BadRequest("Title is required!");
         }
 
-        Guid userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         string username = User.FindFirst("username")?.Value!;
-        var note = await noteService.CreateAsync(request, userId, username);
+        var note = await noteService.CreateAsync(request, User.Id()!, username);
 
         return CreatedAtAction(nameof(Create), new { id = note.Id });
     }
@@ -53,9 +61,9 @@ public class NotesController(INoteService noteService) : ApiControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] string id)
     {
-        if (id == Guid.Empty)
+        if (string.IsNullOrEmpty(id))
         {
             return BadRequest("Invalid id!");
         }

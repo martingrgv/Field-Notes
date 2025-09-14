@@ -1,5 +1,6 @@
 using FieldNotes.Api.Common;
 using FieldNotes.Api.Users.Requests;
+using FieldNotes.Api.Users.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FieldNotes.Api.Users;
@@ -30,7 +31,7 @@ public class UsersController(IUserService userService) : ApiControllerBase
         ValidateCredentailRequest(request);
 
         string token = await userService.LoginAsync(request);
-        return Ok(token);
+        return Ok(new UserLoginResponse { Token = token });
     }
 
     private static void ValidateCredentailRequest(UserCredentialRequest request)

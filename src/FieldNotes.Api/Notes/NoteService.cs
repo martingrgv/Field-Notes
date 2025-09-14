@@ -1,6 +1,7 @@
 using FieldNotes.Api.Data.Persistence;
 using FieldNotes.Api.Data.Persistence.Models;
 using FieldNotes.Api.Notes.Requests;
+using FieldNotes.Api.Notes.Responses;
 using FieldNotes.Api.Pagination;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,12 +9,12 @@ namespace FieldNotes.Api.Notes;
 
 public class NoteService(FieldNotesDbContext dbContext) : INoteService
 {
-    public async Task<Note> CreateAsync(CreateNoteRequest request, Guid userId, string username)
+    public async Task<Note> CreateAsync(CreateNoteRequest request, string userId, string username)
     {
         var note = new Note
         {
             Id = Guid.NewGuid(),
-            UserId = userId,
+            UserId = Guid.Parse(userId),
             Title = request.Title,
             Description = request.Description,
             Category = request.Category,
@@ -29,7 +30,8 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
 
     public async Task<Note> UpdateAsync(UpdateNoteRequest request, string username)
     {
-        var note = await dbContext.Notes.FindAsync(request.Id);
+        var noteId = Guid.Parse(request.Id);
+        var note = await dbContext.Notes.FindAsync(noteId);
 
         if (note is not null)
         {
@@ -47,29 +49,34 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
         throw new InvalidOperationException("Note is not found!");
     }
 
-    public async Task DeleteAsync(Guid noteId)
+    public async Task DeleteAsync(string noteId)
     {
-        var note = await dbContext.Notes.FindAsync(noteId);
+        var internalNoteId = Guid.Parse(noteId);
+        var note = await dbContext.Notes.FindAsync(internalNoteId);
 
-        if (note is not null)
+        if (note != null)
         {
             dbContext.Notes.Remove(note);
+            await dbContext.SaveChangesAsync();
         }
 
-        throw new InvalidOperationException("Note is not found!");
+        throw new InvalidOperationException("Note not found!");
     }
 
-    public async Task<PagedResult<Note>> GetAllAsync(NotesQueryRequest request)
+    public async Task<PagedResult<Note>> GetAllAsync(NotesQueryRequest request, string userId)
     {
         if (request.PageSize <= 0) request.PageSize = 10;
         if (request.PageNumber <= 0) request.PageSize = 1;
 
-        var query = dbContext.Notes.AsQueryable();
+        var query = dbContext.Notes
+            .Where(n => n.UserId == Guid.Parse(userId))
+            .AsNoTracking()
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Category))
         {
             query = query.Where(n => n.Category != null &&
-                string.Equals(n.Category, request.Category, StringComparison.OrdinalIgnoreCase));
+                n.Category.ToLower() == request.Category.ToLower());
         }
 
         var totalCount = await query.CountAsync();
@@ -84,19 +91,42 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
         {
             Items = notes,
             TotalCount = totalCount,
-            PageSize = request.PageSize,
-            PageNumber = request.PageNumber
+            PageNumber = request.PageNumber,
+            PageSize = request.PageSize
         };
     }
 
-    public async Task<string[]> GetCategoriesAsync()
+    public async Task<string[]> GetCategoriesAsync(string userId)
     {
         string[] categories = await dbContext.Notes
             .AsNoTracking()
-            .Where(n => !string.IsNullOrEmpty(n.Category))
+            .Where(n => !string.IsNullOrEmpty(n.Category) &&
+                    n.UserId == Guid.Parse(userId))
             .Select(n => n.Category!)
+            .Distinct()
             .ToArrayAsync();
 
         return categories;
+    }
+
+    public async Task<NoteDetailsResponse> GetByIdAsync(string id)
+    {
+        var noteId = Guid.Parse(id);
+        var note = await dbContext.Notes.FindAsync(noteId);
+
+        if (note is null)
+        {
+            throw new InvalidOperationException("Note not found");
+        }
+
+        return new NoteDetailsResponse
+        {
+            Id = note.Id.ToString(),
+            Title = note.Title,
+            Description = note.Description,
+            Category = note.Category,
+            LastUpdated = note.LastUpdated,
+            LastUpdatedBy = note.LastUpdatedBy
+        };
     }
 }
