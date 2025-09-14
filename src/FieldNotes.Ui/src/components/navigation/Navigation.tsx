@@ -2,53 +2,50 @@ import {
     Box,
     Drawer,
     Toolbar,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemIcon,
-    ListItemButton
-} from '@mui/material'
-import { useNavigate } from 'react-router-dom'
-import { NavigationItems } from './NavigationItems'
+} from '@mui/material';
+import type { NavigationProps } from '../../types/NavigationProps';
+import NavigationItems from './NavigationItems';
 
-function Navigation({ isOpen }: { isOpen: boolean }) {
-    const drawerWidth = 200
-    const navigate = useNavigate()
-
-    const handleNavigation = (path: string) => {
-        navigate(path)
-    }
-
-    const DrawerList = (
-        <Box sx={{ overflow: 'auto' }} >
-            <List>
-                {NavigationItems.map((item, index) => (
-                    <ListItem key={index} disablePadding>
-                        <ListItemButton onClick={() => handleNavigation(item.path)}>
-                            <ListItemIcon>
-                                {item.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={item.text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
+function Navigation({ drawerWidth, drawerOpen, onDrawerToggle }: NavigationProps) {
+    const drawerContent = (
+        <Box sx={{ overflow: 'auto' }}>
+            <Toolbar />
+            <NavigationItems onDrawerToggle={onDrawerToggle} />
         </Box>
     )
 
     return (
-        <Drawer
-            open={isOpen}
-            variant='persistent'
-            sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' }
-            }}>
-            <Toolbar />
-            {DrawerList}
-        </Drawer>
-    )
-}
+        <>
+            {/* Desktop Navigation - Persistent Drawer */}
+            <Drawer
+                open={drawerOpen}
+                onClose={onDrawerToggle}
+                variant='persistent'
+                sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    display: { xs: 'none', md: 'block' },
+                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' }
+                }}>
+                {drawerContent}
+            </Drawer>
 
-export default Navigation
+            {/* Mobile Navigation - Temporary Drawer (Overlay) */}
+            <Drawer
+                open={drawerOpen}
+                onClose={onDrawerToggle}
+                variant='temporary'
+                ModalProps={{
+                    keepMounted: true,
+                }}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' }
+                }}>
+                {drawerContent}
+            </Drawer>
+        </>
+    );
+};
+
+export default Navigation;

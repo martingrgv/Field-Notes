@@ -1,5 +1,7 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext'
+import Navigation from '../navigation/Navigation'
+import type { NavigationProps } from '../../types/NavigationProps';
 import {
     Box,
     AppBar,
@@ -10,19 +12,15 @@ import {
 } from '@mui/material';
 import {
     Menu as MenuIcon,
+    AccountCircle as AccountIcon,
 } from '@mui/icons-material'
-import Navigation from '../navigation/Navigation'
 
-function Header() {
-    const [drawerOpen, setDrawerOpen] = useState(false);
+function Header({ drawerWidth, drawerOpen, onDrawerToggle: onDrawerToggle }: NavigationProps) {
+    const { user } = useAuth();
     const navigate = useNavigate();
 
-    const handleDrawerToggle = () => {
-        setDrawerOpen(!drawerOpen);
-    };
-
     const handleTitleClick = () => {
-        navigate('/');
+        navigate('/notes?pageNumber=1&pageSize=10');
     };
 
 
@@ -36,28 +34,35 @@ function Header() {
                         color="inherit"
                         aria-label="open drawer"
                         edge="start"
-                        sx={{ mr: 2 }}
-                        onClick={handleDrawerToggle}>
+                        sx={{ mr: 1 }}
+                        onClick={onDrawerToggle}>
                         <MenuIcon />
                     </IconButton>
 
-                    <Typography 
-                        variant="h6" 
-                        noWrap 
-                        component="div" 
-                        sx={{ 
-                            flexGrow: 1, 
+                    <Typography
+                        variant="h6"
+                        noWrap
+                        component="div"
+                        sx={{
+                            flexGrow: 1,
                             cursor: 'pointer',
                             '&:hover': {
-                                opacity: 0.8
+                                opacity: 0.75
                             }
                         }}
                         onClick={handleTitleClick}>
                         Field Notes
                     </Typography>
+
+                    <Box sx={{ display: 'flex' }}>
+                        <Typography mr={1}>
+                            {user?.username}
+                        </Typography>
+                        <AccountIcon />
+                    </Box>
                 </Toolbar>
             </AppBar>
-            <Navigation isOpen={drawerOpen} />
+            <Navigation drawerWidth={drawerWidth} drawerOpen={drawerOpen} onDrawerToggle={onDrawerToggle} />
         </Box>
     );
 }
