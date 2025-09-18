@@ -156,8 +156,8 @@ function NotesPage() {
                     color="text.secondary"
                     sx={{ mb: 3 }}
                 >
-                    {paginatedResult?.items.length ?
-                        `${paginatedResult.items.length} note${paginatedResult.items.length !== 1 ? 's' : ''}` :
+                    {paginatedResult?.totalCount ?
+                        `${paginatedResult.totalCount} note${paginatedResult.totalCount !== 1 ? 's' : ''}` :
                         ''
                     }
                 </Typography>
