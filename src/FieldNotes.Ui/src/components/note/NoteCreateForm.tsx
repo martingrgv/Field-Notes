@@ -44,11 +44,6 @@ function NoteCreateForm({ onCreateSuccess, onCancel }: NoteCreateFormProps) {
             return;
         }
 
-        if (!formData.category.trim()) {
-            setSaveError('Category is required');
-            return;
-        }
-
         setSaving(true);
         setSaveError(null);
 
@@ -108,9 +103,7 @@ function NoteCreateForm({ onCreateSuccess, onCancel }: NoteCreateFormProps) {
                     <CategorySelector
                         value={formData.category}
                         onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-                        required
                         error={!formData.category.trim() && saveError !== null}
-                        helperText={!formData.category.trim() && saveError !== null ? 'Category is required' : ''}
                         disabled={saving}
                     />
                 </Box>
