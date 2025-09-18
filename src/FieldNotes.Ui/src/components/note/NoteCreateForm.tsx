@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Box,
     TextField,
@@ -15,19 +15,26 @@ import MarkdownEditor from '../markdown/MarkdownEditor';
 import apiService from '../../services/api';
 
 interface NoteCreateFormProps {
+    savedFormData: string | null;
     onCreateSuccess: (noteId: string) => void;
     onCancel: () => void;
 }
 
-function NoteCreateForm({ onCreateSuccess, onCancel }: NoteCreateFormProps) {
-    const [formData, setFormData] = useState<CreateNoteRequest>({
-        title: '',
-        description: '',
-        category: ''
+function NoteCreateForm({ savedFormData, onCreateSuccess, onCancel }: NoteCreateFormProps) {
+    const [formData, setFormData] = useState<CreateNoteRequest>(() => {
+        return savedFormData ? JSON.parse(savedFormData) : {
+            title: '',
+            description: '',
+            category: ''
+        }
     });
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
     const { refreshCategories } = useCategoryContext();
+
+    useEffect(() => {
+        sessionStorage.setItem('noteCreateForm', JSON.stringify(formData));
+    }, [formData])
 
     const handleFormChange = (field: keyof CreateNoteRequest) => (
         event: React.ChangeEvent<HTMLInputElement>
@@ -60,6 +67,7 @@ function NoteCreateForm({ onCreateSuccess, onCancel }: NoteCreateFormProps) {
             refreshCategories();
 
             onCreateSuccess(response.data.id || 'new-note');
+            sessionStorage.removeItem('noteCreateForm');
         } catch (error) {
             console.error('Error creating note:', error);
             setSaveError('Failed to create note');

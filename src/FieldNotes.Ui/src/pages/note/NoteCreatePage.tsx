@@ -9,8 +9,12 @@ import NoteCreateForm from '../../components/note/NoteCreateForm';
 
 function NoteCreatePage() {
     const navigate = useNavigate();
+    const savedFormData = sessionStorage.getItem('noteCreateForm');
 
     const handleBack = () => {
+        if (savedFormData) {
+            sessionStorage.removeItem('noteCreateForm');
+        }
         navigate(-1);
     };
 
@@ -36,6 +40,7 @@ function NoteCreatePage() {
                 </Button>
 
                 <NoteCreateForm
+                    savedFormData={savedFormData}
                     onCreateSuccess={handleCreateSuccess}
                     onCancel={handleCancel}
                 />
