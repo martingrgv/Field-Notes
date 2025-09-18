@@ -58,6 +58,8 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
         {
             dbContext.Notes.Remove(note);
             await dbContext.SaveChangesAsync();
+
+            return;
         }
 
         throw new InvalidOperationException("Note not found!");
@@ -114,19 +116,19 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
         var noteId = Guid.Parse(id);
         var note = await dbContext.Notes.FindAsync(noteId);
 
-        if (note is null)
+        if (note is not null)
         {
-            throw new InvalidOperationException("Note not found");
+            return new NoteDetailsResponse
+            {
+                Id = note.Id.ToString(),
+                Title = note.Title,
+                Description = note.Description,
+                Category = note.Category,
+                LastUpdated = note.LastUpdated,
+                LastUpdatedBy = note.LastUpdatedBy
+            };
         }
 
-        return new NoteDetailsResponse
-        {
-            Id = note.Id.ToString(),
-            Title = note.Title,
-            Description = note.Description,
-            Category = note.Category,
-            LastUpdated = note.LastUpdated,
-            LastUpdatedBy = note.LastUpdatedBy
-        };
+        throw new InvalidOperationException("Note not found");
     }
 }

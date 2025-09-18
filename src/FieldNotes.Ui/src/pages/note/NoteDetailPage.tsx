@@ -112,7 +112,7 @@ function NoteDetailPage() {
             setDeleteDialogOpen(false);
             // Refresh categories in case this was the last note in a category
             refreshCategories();
-            navigate('/notes?pageNumber=1&pageSize=10', { replace: true });
+            handleBack();
         } catch (error) {
             console.error('Error deleting note:', error);
             setDeleteDialogOpen(false);
