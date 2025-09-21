@@ -78,7 +78,7 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
         if (!string.IsNullOrEmpty(request.Category))
         {
             query = query.Where(n => n.Category != null &&
-                n.Category.ToLower() == request.Category.ToLower());
+                n.Category == request.Category);
         }
 
         var totalCount = await query.CountAsync();
