@@ -13,8 +13,8 @@ import {
     Paper,
     Divider
 } from '@mui/material'
-import MarkdownRenderer from '../../components/markdown/MarkdownRenderer';
 import type { PaginatedResult } from '../../types/PaginatedResult';
+import Pagination from '@mui/material/Pagination';
 
 function NotesPage() {
     const [paginatedResult, setPaginatedResult] = useState<PaginatedResult>();
@@ -49,6 +49,14 @@ function NotesPage() {
         return plainText.length > maxLength
             ? plainText.substring(0, maxLength) + '...'
             : plainText;
+    };
+
+    const handlePagination = (_: React.ChangeEvent<unknown>, value: number) => {
+        setSearchParams((prev) => {
+            const params = new URLSearchParams(prev);
+            params.set("pageNumber", value.toString());
+            return params;
+        })
     };
 
     useEffect(() => {
@@ -162,6 +170,49 @@ function NotesPage() {
                     }
                 </Typography>
                 {renderContent()}
+
+                {paginatedResult && paginatedResult.totalPages > 1 && (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            mt: 4,
+                            mb: 2
+                        }}
+                    >
+                        <Pagination
+                            page={parseInt(pageNumber || '1')}
+                            count={paginatedResult?.totalPages}
+                            variant="outlined"
+                            color="primary"
+                            size="medium"
+                            showFirstButton
+                            showLastButton
+                            onChange={handlePagination}
+                            sx={{
+                                '& .MuiPaginationItem-root': {
+                                    borderRadius: '50%',
+                                    mx: 0.5,
+                                    fontWeight: 500,
+                                    border: '1px solid',
+                                    borderColor: 'grey.600',
+                                    '&:hover': {
+                                        backgroundColor: 'primary.light',
+                                        color: 'white',
+                                    },
+                                    '&.Mui-selected': {
+                                        backgroundColor: 'primary.main',
+                                        color: 'white',
+                                        fontWeight: 600,
+                                        '&:hover': {
+                                            backgroundColor: 'primary.dark',
+                                        }
+                                    }
+                                }
+                            }}
+                        />
+                    </Box>
+                )}
             </Box>
         </Container>
     )
