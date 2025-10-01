@@ -131,4 +131,18 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
 
         throw new InvalidOperationException("Note not found");
     }
+
+    public async Task RenameCategory(string oldCategory, string newCategory, string userId)
+    {
+        var notes = await dbContext.Notes
+            .Where(n => n.Category == oldCategory)
+            .ToListAsync();
+
+        foreach (var note in notes)
+        {
+            note.Category = newCategory;
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
 }

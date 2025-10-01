@@ -1,7 +1,6 @@
 using FieldNotes.Api.Common;
 using FieldNotes.Api.Extensions;
 using FieldNotes.Api.Notes.Requests;
-using FieldNotes.Api.Notes.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,6 +57,20 @@ public class NotesController(INoteService noteService) : ApiControllerBase
         var note = await noteService.UpdateAsync(request, username);
 
         return Ok(note);
+    }
+
+    [HttpPost("category")]
+    public async Task<IActionResult> RenameCategory([FromBody] RenameCategoryRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Category) || string.IsNullOrEmpty(request.NewCategory))
+        {
+            return BadRequest("Category is required!");
+        }
+
+        var userId = User.Id()!;
+        await noteService.RenameCategory(request.Category, request.NewCategory, userId);
+
+        return Ok();
     }
 
     [HttpDelete("{id}")]

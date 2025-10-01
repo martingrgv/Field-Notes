@@ -12,5 +12,6 @@ public interface INoteService
     Task<string[]> GetCategoriesAsync(string userId);
     Task<Note> CreateAsync(CreateNoteRequest request, string userId, string username);
     Task<Note> UpdateAsync(UpdateNoteRequest request, string username);
+    Task RenameCategory(string oldCategory, string newCategory, string userId);
     Task DeleteAsync(string noteId);
 }
