@@ -6,11 +6,55 @@ services:
       - "POSTGRES_USER=postgres"
       - "POSTGRES_PASSWORD=postgres"
       - "POSTGRES_DB=FieldNotesDb"
-    restart: always
     ports:
       - "5432:5432"
     volumes:
       - "postgres_fieldnotes:/var/lib/postgresql/data/"
+    networks:
+      - fieldnotes-network
+    restart: always
+
+  api:
+    build:
+      context: ./src/FieldNotes.Api
+      dockerfile: Dockerfile
+    container_name: fieldnotes-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/FieldNotes.Api:/app
+      - /app/bin
+      - /app/obj
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://*:8080
+    networks:
+      - fieldnotes-network
+    depends_on:
+      - fieldnotesdb
+    restart: always
+
+  ui:
+    build:
+      context: ./src/FieldNotes.Ui
+      dockerfile: Dockerfile
+    container_name: fieldnotes-ui
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src/FieldNotes.Ui:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://api:8080
+    networks:
+      - fieldnotes-network
+    depends_on:
+      - api
+    restart: always
+
+networks:
+  fieldnotes-network:
+    driver: bridge
 
 volumes:
   postgres_fieldnotes:
