@@ -46,7 +46,7 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
             return note;
         }
 
-        throw new InvalidOperationException("Note is not found!");
+        throw new InvalidOperationException("Note not found!");
     }
 
     public async Task DeleteAsync(string noteId)
@@ -68,7 +68,7 @@ public class NoteService(FieldNotesDbContext dbContext) : INoteService
     public async Task<PagedResult<Note>> GetAllAsync(NotesQueryRequest request, string userId)
     {
         if (request.PageSize <= 0) request.PageSize = 10;
-        if (request.PageNumber <= 0) request.PageSize = 1;
+        if (request.PageNumber <= 0) request.PageNumber = 1;
 
         var query = dbContext.Notes
             .Where(n => n.UserId == Guid.Parse(userId))
