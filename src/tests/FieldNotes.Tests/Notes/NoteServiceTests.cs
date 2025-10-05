@@ -258,7 +258,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Length, Is.EqualTo(2));
+            Assert.That(result, Has.Length.EqualTo(2));
             Assert.That(result, Contains.Item("Work"));
             Assert.That(result, Contains.Item("Personal"));
         });
@@ -297,7 +297,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Length, Is.EqualTo(0));
+            Assert.That(result, Has.Length.Zero);
         });
     }
 
@@ -311,7 +311,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Length, Is.EqualTo(0));
+            Assert.That(result, Has.Length.Zero);
         });
     }
 
@@ -350,7 +350,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Length, Is.EqualTo(0));
+            Assert.That(result, Has.Length.Zero);
         });
     }
 
@@ -388,7 +388,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Items.Count, Is.EqualTo(5));
+            Assert.That(result.Items, Has.Count.EqualTo(5));
             Assert.That(result.TotalCount, Is.EqualTo(15));
             Assert.That(result.PageNumber, Is.EqualTo(2));
             Assert.That(result.PageSize, Is.EqualTo(5));
@@ -436,7 +436,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Items.Count, Is.EqualTo(1));
+            Assert.That(result.Items, Has.Count.EqualTo(1));
             Assert.That(result.TotalCount, Is.EqualTo(1));
             Assert.That(result.Items.First().Category, Is.EqualTo("Work"));
             Assert.That(result.Items.First().Title, Is.EqualTo("Work Note"));
@@ -473,7 +473,7 @@ public class NoteServiceTests
         {
             Assert.That(result, Is.Not.Null);
             Assert.That(result.PageSize, Is.EqualTo(10));
-            Assert.That(result.Items.Count, Is.EqualTo(1));
+            Assert.That(result.Items, Has.Count.EqualTo(1));
         });
     }
 
@@ -508,7 +508,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Items.Count, Is.EqualTo(0));
+            Assert.That(result.Items, Has.Count.EqualTo(0));
             Assert.That(result.TotalCount, Is.EqualTo(0));
             Assert.That(result.PageNumber, Is.EqualTo(1));
             Assert.That(result.PageSize, Is.EqualTo(10));
@@ -564,7 +564,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Items.Count, Is.EqualTo(3));
+            Assert.That(result.Items, Has.Count.EqualTo(3));
             Assert.That(result.Items[0].Title, Is.EqualTo("New Note"));
             Assert.That(result.Items[1].Title, Is.EqualTo("Middle Note"));
             Assert.That(result.Items[2].Title, Is.EqualTo("Old Note"));
@@ -717,7 +717,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Items.Count, Is.EqualTo(2));
+            Assert.That(result.Items, Has.Count.EqualTo(2));
             Assert.That(result.TotalCount, Is.EqualTo(2));
         });
     }
@@ -762,7 +762,7 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Items.Count, Is.EqualTo(2));
+            Assert.That(result.Items, Has.Count.EqualTo(2));
             Assert.That(result.TotalCount, Is.EqualTo(2));
         });
     }
@@ -795,7 +795,7 @@ public class NoteServiceTests
             Id = Guid.NewGuid(),
             Title = "Note 1",
             Description = "Description 1",
-            Category = "工作", // Chinese for "Work"
+            Category = "Работа",
             UserId = userId,
             LastUpdated = DateTimeOffset.UtcNow,
             LastUpdatedBy = "testuser"
@@ -805,7 +805,7 @@ public class NoteServiceTests
             Id = Guid.NewGuid(),
             Title = "Note 2",
             Description = "Description 2",
-            Category = "Träning", // Swedish for "Training"
+            Category = "Träning",
             UserId = userId,
             LastUpdated = DateTimeOffset.UtcNow,
             LastUpdatedBy = "testuser"
@@ -819,8 +819,8 @@ public class NoteServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Length, Is.EqualTo(2));
-            Assert.That(result, Contains.Item("工作"));
+            Assert.That(result, Has.Length.EqualTo(2));
+            Assert.That(result, Contains.Item("Работа"));
             Assert.That(result, Contains.Item("Träning"));
         });
     }
